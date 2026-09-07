@@ -44,7 +44,8 @@ export default function SharedItineraryPage() {
   return (
     <div className="min-h-[80vh] bg-slate-50">
       <div className="bg-hero-gradient py-10">
-        <div className="mx-auto max-w-4xl px-4 text-center sm:px-6 lg:px-8">
+        <div className="container-app text-center">
+        <div className="mx-auto max-w-4xl">
           <Link to="/" className="mb-4 inline-flex items-center gap-2 text-sm font-semibold text-white/90">
             <Compass className="h-4 w-4" /> GlobeTrotter
           </Link>
@@ -58,9 +59,11 @@ export default function SharedItineraryPage() {
             <StatusBadge status={itinerary.status} />
           </div>
         </div>
+        </div>
       </div>
 
-      <div className="mx-auto max-w-4xl px-4 py-10 sm:px-6 lg:px-8">
+      <div className="container-app py-10">
+        <div className="mx-auto max-w-4xl">
         <h2 className="mb-6 text-lg font-bold text-slate-900">Étapes du voyage</h2>
         <ol className="space-y-4 border-l-2 border-brand-100 pl-6">
           {items.map((item) => (
@@ -94,6 +97,7 @@ export default function SharedItineraryPage() {
           <Link to="/register" className="btn-primary mt-3 inline-flex">
             Rejoindre GlobeTrotter
           </Link>
+        </div>
         </div>
       </div>
     </div>

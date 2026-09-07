@@ -1,5 +1,7 @@
+import { Link } from 'react-router-dom';
 import { MapPin, CheckCircle2 } from 'lucide-react';
 import DestinationImage from './DestinationImage';
+import FavoriteButton from './FavoriteButton';
 import { getCategoryTheme } from '../lib/categoryTheme';
 
 export default function RecommendationCard({ recommendation }) {
@@ -8,8 +10,8 @@ export default function RecommendationCard({ recommendation }) {
   const pct = Math.min(100, Math.round((score / 65) * 100));
 
   return (
-    <div className="card group flex flex-col overflow-hidden transition-transform duration-300 hover:-translate-y-1 hover:shadow-soft animate-fade-in">
-      <div className="relative h-40 w-full overflow-hidden">
+    <div className="card group flex flex-col overflow-hidden transition-all duration-300 hover:-translate-y-1.5 hover:shadow-glow animate-fade-in-up">
+      <Link to={`/destinations/${destination.id}`} className="relative block h-40 w-full overflow-hidden">
         <DestinationImage
           category={destination.category}
           name={destination.name}
@@ -21,10 +23,13 @@ export default function RecommendationCard({ recommendation }) {
         <div className="absolute right-3 top-3 flex h-12 w-12 items-center justify-center rounded-full bg-white shadow-lg">
           <span className="text-sm font-extrabold text-brand-700">{score}</span>
         </div>
-      </div>
+        <FavoriteButton destination={destination} className="absolute left-3 top-3" />
+      </Link>
 
       <div className="flex flex-1 flex-col gap-2 p-4">
-        <h3 className="font-bold text-slate-900">{destination.name}</h3>
+        <Link to={`/destinations/${destination.id}`} className="font-bold text-slate-900 transition-colors hover:text-brand-700">
+          {destination.name}
+        </Link>
         <p className="flex items-center gap-1 text-xs text-slate-500">
           <MapPin className="h-3.5 w-3.5" />
           {destination.city}, {destination.country}
@@ -32,7 +37,7 @@ export default function RecommendationCard({ recommendation }) {
 
         <div className="mt-1 h-1.5 w-full overflow-hidden rounded-full bg-slate-100">
           <div
-            className="h-full rounded-full bg-gradient-to-r from-brand-500 to-fuchsia-500 transition-all"
+            className="h-full rounded-full bg-gradient-to-r from-brand-500 to-accent-500 transition-all"
             style={{ width: `${pct}%` }}
           />
         </div>

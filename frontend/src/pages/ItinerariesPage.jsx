@@ -34,7 +34,7 @@ export default function ItinerariesPage() {
   }, [fetchData]);
 
   return (
-    <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
+    <div className="container-app py-10">
       <div className="mb-8 flex flex-wrap items-center justify-between gap-4">
         <div>
           <h1 className="flex items-center gap-2 text-3xl font-extrabold text-slate-900">
@@ -63,11 +63,11 @@ export default function ItinerariesPage() {
         />
       ) : (
         <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          {itineraries.map((it) => (
+          {itineraries.map((it, i) => (
             <Link
               key={it.id}
               to={`/itineraries/${it.id}`}
-              className="card group flex flex-col gap-3 p-5 transition-transform hover:-translate-y-1 hover:shadow-soft"
+              className={`card group flex flex-col gap-3 p-5 transition-all duration-300 hover:-translate-y-1.5 hover:shadow-glow animate-fade-in-up stagger-${Math.min((i % 8) + 1, 8)}`}
             >
               <div className="flex items-start justify-between gap-2">
                 <h3 className="font-bold text-slate-900 group-hover:text-brand-700">{it.title}</h3>

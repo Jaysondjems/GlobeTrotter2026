@@ -1,28 +1,34 @@
+import { Link } from 'react-router-dom';
 import { MapPin, TrendingUp, DollarSign, Plus } from 'lucide-react';
 import DestinationImage from './DestinationImage';
+import FavoriteButton from './FavoriteButton';
 import { getCategoryTheme } from '../lib/categoryTheme';
 
-export default function DestinationCard({ destination, onAdd, actionLabel = 'Ajouter à un itinéraire' }) {
+export default function DestinationCard({ destination, onAdd, actionLabel = 'Ajouter' }) {
   const theme = getCategoryTheme(destination.category);
 
   return (
-    <div className="card group flex flex-col overflow-hidden transition-transform duration-300 hover:-translate-y-1 hover:shadow-soft">
-      <div className="relative h-44 w-full overflow-hidden">
+    <div className="card group flex flex-col overflow-hidden transition-all duration-300 hover:-translate-y-1.5 hover:shadow-glow">
+      <Link to={`/destinations/${destination.id}`} className="relative block h-44 w-full overflow-hidden">
         <DestinationImage
           category={destination.category}
           name={destination.name}
           className="h-full w-full transition-transform duration-500 group-hover:scale-110"
         />
+        <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 transition-opacity group-hover:opacity-100" />
         <span className={`badge absolute left-3 top-3 ${theme.badge} backdrop-blur`}>{theme.label}</span>
         {destination.popularityScore >= 85 && (
-          <span className="badge absolute right-3 top-3 bg-white/90 text-slate-700">
+          <span className="badge absolute left-3 bottom-3 bg-white/90 text-slate-700">
             <TrendingUp className="h-3 w-3" /> Populaire
           </span>
         )}
-      </div>
+        <FavoriteButton destination={destination} className="absolute right-3 top-3" />
+      </Link>
 
       <div className="flex flex-1 flex-col gap-2 p-4">
-        <h3 className="font-bold text-slate-900">{destination.name}</h3>
+        <Link to={`/destinations/${destination.id}`} className="font-bold text-slate-900 transition-colors hover:text-brand-700">
+          {destination.name}
+        </Link>
         <p className="flex items-center gap-1 text-xs text-slate-500">
           <MapPin className="h-3.5 w-3.5" />
           {destination.city}, {destination.country}

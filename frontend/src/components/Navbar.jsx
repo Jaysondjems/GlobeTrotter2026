@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import { Link, NavLink, useNavigate } from 'react-router-dom';
-import { Compass, Menu, X, Sparkles, MapPinned, User, LogOut } from 'lucide-react';
+import { Compass, Menu, X, Sparkles, MapPinned, User, LogOut, Heart } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
+import { useFavorites } from '../context/FavoritesContext';
 
 const navLinkClass = ({ isActive }) =>
   `px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
@@ -10,6 +11,7 @@ const navLinkClass = ({ isActive }) =>
 
 export default function Navbar() {
   const { isAuthenticated, user, logout } = useAuth();
+  const { count } = useFavorites();
   const [open, setOpen] = useState(false);
   const navigate = useNavigate();
 
@@ -23,11 +25,12 @@ export default function Navbar() {
     { to: '/destinations', label: 'Destinations', icon: Compass },
     { to: '/recommendations', label: 'Recommandations', icon: Sparkles },
     { to: '/itineraries', label: 'Mes itinéraires', icon: MapPinned },
+    { to: '/favorites', label: 'Favoris', icon: Heart, badge: count },
   ];
 
   return (
     <header className="sticky top-0 z-50 border-b border-slate-100 bg-white/80 backdrop-blur-md">
-      <nav className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3 sm:px-6 lg:px-8">
+      <nav className="container-app flex items-center justify-between py-3">
         <Link to="/" className="flex items-center gap-2 font-extrabold text-lg text-slate-900">
           <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-hero-gradient text-white shadow-soft">
             <Compass className="h-5 w-5" />
@@ -38,7 +41,14 @@ export default function Navbar() {
         <div className="hidden md:flex md:items-center md:gap-1">
           {links.map((l) => (
             <NavLink key={l.to} to={l.to} className={navLinkClass}>
-              {l.label}
+              <span className="relative inline-flex items-center">
+                {l.label}
+                {Boolean(l.badge) && (
+                  <span className="ml-1.5 flex h-4 min-w-[16px] items-center justify-center rounded-full bg-rose-500 px-1 text-[10px] font-bold text-white">
+                    {l.badge}
+                  </span>
+                )}
+              </span>
             </NavLink>
           ))}
         </div>
@@ -81,6 +91,11 @@ export default function Navbar() {
                 <span className="flex items-center gap-2">
                   <l.icon className="h-4 w-4" />
                   {l.label}
+                  {Boolean(l.badge) && (
+                    <span className="flex h-4 min-w-[16px] items-center justify-center rounded-full bg-rose-500 px-1 text-[10px] font-bold text-white">
+                      {l.badge}
+                    </span>
+                  )}
                 </span>
               </NavLink>
             ))}

@@ -14,6 +14,11 @@ body {
   @apply bg-brand-200 text-brand-900;
 }
 
+/* Content occupies 95% of the viewport width (capped so ultra-wide monitors stay readable). */
+.container-app {
+  @apply mx-auto w-[95%] max-w-[1600px];
+}
+
 .card {
   @apply bg-white rounded-2xl shadow-card border border-slate-100;
 }
@@ -23,11 +28,11 @@ body {
 }
 
 .btn-primary {
-  @apply btn bg-brand-600 text-white hover:bg-brand-700 shadow-soft hover:shadow-lg hover:-translate-y-0.5;
+  @apply btn bg-brand-600 text-white hover:bg-brand-700 shadow-soft hover:shadow-lg hover:-translate-y-0.5 active:translate-y-0;
 }
 
 .btn-secondary {
-  @apply btn bg-white text-slate-700 border border-slate-200 hover:bg-slate-50 hover:-translate-y-0.5;
+  @apply btn bg-white text-slate-700 border border-slate-200 hover:bg-slate-50 hover:-translate-y-0.5 active:translate-y-0;
 }
 
 .btn-ghost {
@@ -50,17 +55,25 @@ body {
   @apply inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-semibold;
 }
 
-.animate-fade-in {
-  animation: fadeIn 0.4s ease-out;
+/* Stagger helpers: apply alongside animate-fade-in-up in a list/grid for a cascading reveal. */
+.stagger-1 { animation-delay: 60ms; }
+.stagger-2 { animation-delay: 120ms; }
+.stagger-3 { animation-delay: 180ms; }
+.stagger-4 { animation-delay: 240ms; }
+.stagger-5 { animation-delay: 300ms; }
+.stagger-6 { animation-delay: 360ms; }
+.stagger-7 { animation-delay: 420ms; }
+.stagger-8 { animation-delay: 480ms; }
+
+.text-shadow {
+  text-shadow: 0 2px 20px rgba(0, 0, 0, 0.35);
 }
 
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(8px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+.bg-noise::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  opacity: 0.06;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='60' height='60'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  pointer-events: none;
 }

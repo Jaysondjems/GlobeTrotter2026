@@ -5,10 +5,12 @@ import LandingPage from './pages/LandingPage';
 import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
 import DestinationsPage from './pages/DestinationsPage';
+import DestinationDetailPage from './pages/DestinationDetailPage';
 import RecommendationsPage from './pages/RecommendationsPage';
 import ItinerariesPage from './pages/ItinerariesPage';
 import ItineraryDetailPage from './pages/ItineraryDetailPage';
 import SharedItineraryPage from './pages/SharedItineraryPage';
+import FavoritesPage from './pages/FavoritesPage';
 import NotFoundPage from './pages/NotFoundPage';
 
 export default function App() {
@@ -21,6 +23,8 @@ export default function App() {
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
         <Route path="/destinations" element={<DestinationsPage />} />
+        <Route path="/destinations/:id" element={<DestinationDetailPage />} />
+        <Route path="/favorites" element={<FavoritesPage />} />
         <Route
           path="/recommendations"
           element={

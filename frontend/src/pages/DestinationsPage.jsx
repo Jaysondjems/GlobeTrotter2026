@@ -62,7 +62,7 @@ export default function DestinationsPage() {
   }
 
   return (
-    <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
+    <div className="container-app py-10">
       <div className="mb-8">
         <h1 className="text-3xl font-extrabold text-slate-900">Explorer les destinations</h1>
         <p className="mt-1 text-slate-500">Filtrez par catégorie, budget ou recherchez une ville.</p>
@@ -138,8 +138,10 @@ export default function DestinationsPage() {
       ) : (
         <>
           <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-            {destinations.map((d) => (
-              <DestinationCard key={d.id} destination={d} onAdd={setSelected} />
+            {destinations.map((d, i) => (
+              <div key={d.id} className={`animate-fade-in-up stagger-${Math.min((i % 8) + 1, 8)}`}>
+                <DestinationCard destination={d} onAdd={setSelected} />
+              </div>
             ))}
           </div>
 

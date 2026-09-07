@@ -29,7 +29,7 @@ export default function RecommendationsPage() {
   }, [fetchData]);
 
   return (
-    <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
+    <div className="container-app py-10">
       <div className="mb-8 flex flex-wrap items-center justify-between gap-4">
         <div>
           <h1 className="flex items-center gap-2 text-3xl font-extrabold text-slate-900">

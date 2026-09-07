@@ -97,7 +97,8 @@ export default function ItineraryDetailPage() {
   const items = [...(itinerary.items || [])].sort((a, b) => new Date(a.date) - new Date(b.date));
 
   return (
-    <div className="mx-auto max-w-4xl px-4 py-10 sm:px-6 lg:px-8">
+    <div className="container-app py-10">
+      <div className="mx-auto max-w-4xl">
       <Link to="/itineraries" className="mb-4 inline-flex items-center gap-1 text-sm font-medium text-slate-500 hover:text-brand-700">
         <ArrowLeft className="h-4 w-4" /> Mes itinéraires
       </Link>
@@ -193,6 +194,7 @@ export default function ItineraryDetailPage() {
 
       <AddItemModal itineraryId={id} open={showAddItem} onClose={() => setShowAddItem(false)} onAdded={fetchData} />
       <ShareModal open={Boolean(shareUrl)} onClose={() => setShareUrl(null)} shareUrl={shareUrl} />
+      </div>
     </div>
   );
 }
