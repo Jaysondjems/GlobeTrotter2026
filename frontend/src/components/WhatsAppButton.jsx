@@ -1,5 +1,4 @@
-// Replace with the real business/support number (international format, no "+" or spaces).
-const WHATSAPP_NUMBER = '33600000000';
+const WHATSAPP_NUMBER = '698770621';
 const WHATSAPP_MESSAGE = 'Bonjour ! Je souhaite en savoir plus sur GlobeTrotter.';
 
 export default function WhatsAppButton() {
