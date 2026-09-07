@@ -34,3 +34,8 @@ docs/       Document explicatif complet des 4 phases + frontend
 
 Voir `docs/GLOBETROTTER_EXPLANATION.docx` pour tous les details : architecture, choix
 techniques, installation pas a pas, et scenarios de demonstration pour chaque phase.
+
+## Mise en ligne (production)
+
+Voir [`DEPLOYMENT.md`](DEPLOYMENT.md) : guide pas a pas pour deployer le frontend sur
+**Vercel** et le backend sur **Railway**.
