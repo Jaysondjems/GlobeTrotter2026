@@ -1,0 +1,31 @@
+// GlobeTrotter - Phase 2 - destinations-service
+// Owns its own database (database-per-service).
+
+generator client {
+  provider      = "prisma-client-js"
+  binaryTargets = ["native", "linux-musl-openssl-3.0.x"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Destination {
+  id              String   @id @default(uuid())
+  name            String
+  country         String
+  city            String
+  description     String?
+  category        String
+  averageBudget   Float
+  popularityScore Int      @default(0)
+  activities      Json     @default("[]")
+  imageUrl        String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@index([country])
+  @@index([category])
+  @@map("destinations")
+}

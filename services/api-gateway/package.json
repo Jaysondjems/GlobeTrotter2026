@@ -1,0 +1,19 @@
+{
+  "name": "globetrotter-api-gateway",
+  "version": "1.0.0",
+  "description": "GlobeTrotter - Phase 2: single entry point that routes requests to the right microservice",
+  "main": "src/server.js",
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "node --watch src/server.js"
+  },
+  "license": "MIT",
+  "dependencies": {
+    "axios": "^1.7.7",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "express": "^4.21.0",
+    "helmet": "^7.1.0",
+    "http-proxy": "^1.18.1"
+  }
+}

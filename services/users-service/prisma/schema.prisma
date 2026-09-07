@@ -1,0 +1,28 @@
+// GlobeTrotter - Phase 2 - users-service
+// Owns its own database (database-per-service). No relations to Itinerary/Destination:
+// those live in other services' databases and are referenced only by id (string).
+
+generator client {
+  provider      = "prisma-client-js"
+  binaryTargets = ["native", "linux-musl-openssl-3.0.x"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id                String   @id @default(uuid())
+  firstName         String
+  lastName          String
+  email             String   @unique
+  passwordHash      String
+  country           String?
+  budgetPreference  Float?
+  travelPreferences Json     @default("[]")
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  @@map("users")
+}

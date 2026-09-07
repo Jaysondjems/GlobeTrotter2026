@@ -1,0 +1,50 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: itineraries-service
+  namespace: globetrotter
+spec:
+  replicas: 2
+  selector:
+    matchLabels: { app: itineraries-service }
+  template:
+    metadata:
+      labels: { app: itineraries-service }
+    spec:
+      containers:
+        - name: itineraries-service
+          image: globetrotter/itineraries-service:latest
+          imagePullPolicy: Never
+          ports: [{ containerPort: 4003 }]
+          env:
+            - { name: PORT, value: "4003" }
+            - name: NODE_ENV
+              valueFrom: { configMapKeyRef: { name: globetrotter-config, key: NODE_ENV } }
+            - name: DESTINATIONS_SERVICE_URL
+              valueFrom: { configMapKeyRef: { name: globetrotter-config, key: DESTINATIONS_SERVICE_URL } }
+            - name: RABBITMQ_URL
+              valueFrom: { configMapKeyRef: { name: globetrotter-config, key: RABBITMQ_URL } }
+            - name: DATABASE_URL
+              valueFrom: { secretKeyRef: { name: globetrotter-secrets, key: DATABASE_URL_ITINERARIES } }
+            - name: JWT_SECRET
+              valueFrom: { secretKeyRef: { name: globetrotter-secrets, key: JWT_SECRET } }
+          resources:
+            requests: { cpu: "50m", memory: "64Mi" }
+            limits: { cpu: "250m", memory: "256Mi" }
+          readinessProbe:
+            httpGet: { path: /health, port: 4003 }
+            initialDelaySeconds: 5
+            periodSeconds: 5
+          livenessProbe:
+            httpGet: { path: /health, port: 4003 }
+            initialDelaySeconds: 10
+            periodSeconds: 10
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: itineraries-service
+  namespace: globetrotter
+spec:
+  selector: { app: itineraries-service }
+  ports: [{ port: 4003, targetPort: 4003 }]

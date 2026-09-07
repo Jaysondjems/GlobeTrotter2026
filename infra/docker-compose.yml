@@ -1,0 +1,134 @@
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: globetrotter-postgres
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: GlobeTrotter2026
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./init-db:/docker-entrypoint-initdb.d
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    networks: [globetrotter]
+
+  redis:
+    image: redis:7-alpine
+    container_name: globetrotter-redis
+    ports:
+      - "6379:6379"
+    networks: [globetrotter]
+
+  rabbitmq:
+    image: rabbitmq:3-management-alpine
+    container_name: globetrotter-rabbitmq
+    ports:
+      - "5672:5672"   # AMQP
+      - "15672:15672" # Management UI (guest/guest)
+    networks: [globetrotter]
+
+  users-service:
+    build: ../services/users-service
+    container_name: globetrotter-users-service
+    environment:
+      PORT: 4001
+      DATABASE_URL: postgresql://postgres:GlobeTrotter2026@postgres:5432/globetrotter_users
+      JWT_SECRET: a3f9c2e7b1d4f6a8c0e2b4d6f8a0c2e4b6d8f0a2c4e6b8d0f2a4c6e8b0d2f4a6
+      NODE_ENV: production
+    depends_on:
+      postgres:
+        condition: service_healthy
+    ports:
+      - "4001:4001"
+    networks: [globetrotter]
+
+  destinations-service:
+    build: ../services/destinations-service
+    container_name: globetrotter-destinations-service
+    environment:
+      PORT: 4002
+      DATABASE_URL: postgresql://postgres:GlobeTrotter2026@postgres:5432/globetrotter_destinations
+      REDIS_URL: redis://redis:6379
+      NODE_ENV: production
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_started
+    ports:
+      - "4002:4002"
+    networks: [globetrotter]
+
+  itineraries-service:
+    build: ../services/itineraries-service
+    container_name: globetrotter-itineraries-service
+    environment:
+      PORT: 4003
+      DATABASE_URL: postgresql://postgres:GlobeTrotter2026@postgres:5432/globetrotter_itineraries
+      JWT_SECRET: a3f9c2e7b1d4f6a8c0e2b4d6f8a0c2e4b6d8f0a2c4e6b8d0f2a4c6e8b0d2f4a6
+      DESTINATIONS_SERVICE_URL: http://destinations-service:4002
+      RABBITMQ_URL: amqp://rabbitmq:5672
+      NODE_ENV: production
+    depends_on:
+      postgres:
+        condition: service_healthy
+      destinations-service:
+        condition: service_started
+      rabbitmq:
+        condition: service_started
+    ports:
+      - "4003:4003"
+    networks: [globetrotter]
+
+  recommendations-service:
+    build: ../services/recommendations-service
+    container_name: globetrotter-recommendations-service
+    environment:
+      PORT: 4004
+      USERS_SERVICE_URL: http://users-service:4001
+      DESTINATIONS_SERVICE_URL: http://destinations-service:4002
+      ITINERARIES_SERVICE_URL: http://itineraries-service:4003
+      REDIS_URL: redis://redis:6379
+      RABBITMQ_URL: amqp://rabbitmq:5672
+      NODE_ENV: production
+    depends_on:
+      - users-service
+      - destinations-service
+      - itineraries-service
+      - redis
+      - rabbitmq
+    ports:
+      - "4004:4004"
+    networks: [globetrotter]
+
+  api-gateway:
+    build: ../services/api-gateway
+    container_name: globetrotter-api-gateway
+    environment:
+      PORT: 3000
+      USERS_SERVICE_URL: http://users-service:4001
+      DESTINATIONS_SERVICE_URL: http://destinations-service:4002
+      ITINERARIES_SERVICE_URL: http://itineraries-service:4003
+      RECOMMENDATIONS_SERVICE_URL: http://recommendations-service:4004
+      NODE_ENV: production
+    depends_on:
+      - users-service
+      - destinations-service
+      - itineraries-service
+      - recommendations-service
+    ports:
+      - "3000:3000"
+    networks: [globetrotter]
+
+volumes:
+  postgres_data:
+
+networks:
+  globetrotter:
+    driver: bridge

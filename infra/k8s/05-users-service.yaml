@@ -1,0 +1,46 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: users-service
+  namespace: globetrotter
+spec:
+  replicas: 2
+  selector:
+    matchLabels: { app: users-service }
+  template:
+    metadata:
+      labels: { app: users-service }
+    spec:
+      containers:
+        - name: users-service
+          image: globetrotter/users-service:latest
+          imagePullPolicy: Never # built locally into minikube's Docker daemon, see infra/k8s/README.md
+          ports: [{ containerPort: 4001 }]
+          env:
+            - { name: PORT, value: "4001" }
+            - name: NODE_ENV
+              valueFrom: { configMapKeyRef: { name: globetrotter-config, key: NODE_ENV } }
+            - name: DATABASE_URL
+              valueFrom: { secretKeyRef: { name: globetrotter-secrets, key: DATABASE_URL_USERS } }
+            - name: JWT_SECRET
+              valueFrom: { secretKeyRef: { name: globetrotter-secrets, key: JWT_SECRET } }
+          resources:
+            requests: { cpu: "50m", memory: "64Mi" }
+            limits: { cpu: "250m", memory: "256Mi" }
+          readinessProbe:
+            httpGet: { path: /health, port: 4001 }
+            initialDelaySeconds: 5
+            periodSeconds: 5
+          livenessProbe:
+            httpGet: { path: /health, port: 4001 }
+            initialDelaySeconds: 10
+            periodSeconds: 10
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: users-service
+  namespace: globetrotter
+spec:
+  selector: { app: users-service }
+  ports: [{ port: 4001, targetPort: 4001 }]
