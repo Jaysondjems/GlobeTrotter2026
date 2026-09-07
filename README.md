@@ -13,13 +13,23 @@ docker compose up --build
 curl http://localhost:3000/health
 ```
 
+Puis, dans un autre terminal, l'application web :
+
+```bash
+cd frontend
+npm install
+npm run dev
+# http://localhost:5173
+```
+
 ## Structure du depot
 
 ```
 backend/    Phase 1 - monolithe Node.js/Express (conserve pour reference)
 services/   Phase 2 - microservices (api-gateway, users, destinations, itineraries, recommendations)
 infra/      Phase 3 - docker-compose.yml et manifests Kubernetes (infra/k8s/)
-docs/       Document explicatif complet des 4 phases
+frontend/   Application web (React + Vite + Tailwind) consommant l'api-gateway
+docs/       Document explicatif complet des 4 phases + frontend
 ```
 
 Voir `docs/GLOBETROTTER_EXPLANATION.docx` pour tous les details : architecture, choix
