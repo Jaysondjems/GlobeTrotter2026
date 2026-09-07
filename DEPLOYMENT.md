@@ -22,19 +22,27 @@ Guide pas a pas pour mettre le projet en ligne :
 
 ### 1.2 Ajouter les bases de donnees managees
 
-Dans le projet Railway, ajouter 3 plugins **PostgreSQL** (un par service qui a besoin d'une
-base - voir section 8 du document academique, "database per service") :
+> **Limite du plan Railway : 3 volumes persistants maximum par projet.** Chaque plugin
+> PostgreSQL/Redis consomme un volume. Il faut donc **une seule instance PostgreSQL partagee**
+> (contenant les 3 bases, comme le fait `infra/init-db/01-create-databases.sql` en local) plutot
+> que 3 instances separees - sinon Redis echoue avec `You can only have 3 volumes per project`.
 
-- `Add` -> `Database` -> `PostgreSQL` -> renommer en `postgres-users`
-- Repeter pour `postgres-destinations`
-- Repeter pour `postgres-itineraries`
+1. `Add` -> `Database` -> `PostgreSQL` -> renommer en `postgres` (une seule instance).
+2. Ouvrir l'onglet **Data -> Query** de ce service (ou s'y connecter en `psql` avec la chaine
+   de connexion fournie) et executer :
+   ```sql
+   CREATE DATABASE globetrotter_destinations;
+   CREATE DATABASE globetrotter_itineraries;
+   ```
+   (la base par defaut de Railway, ex. `railway`, sert pour `users-service`, ou en creer une
+   troisieme `globetrotter_users` par coherence de nommage.)
+3. `Add` -> `Database` -> `Redis`.
+4. `Add` -> `Docker Image` -> image `rabbitmq:3-management-alpine` (expose les ports 5672 et
+   15672). Ne pas lui attacher de volume : la persistance des messages n'est pas necessaire
+   pour ce projet et cela garde le total a 2 volumes sur 3.
 
-Puis ajouter :
-- `Add` -> `Database` -> `Redis`
-- `Add` -> `Docker Image` -> image `rabbitmq:3-management-alpine` (expose les ports 5672 et 15672)
-
-Chaque plugin fournit automatiquement une variable `DATABASE_URL` / `REDIS_URL` que l'on
-reutilisera a l'etape suivante.
+Le plugin PostgreSQL fournit des variables individuelles (`PGHOST`, `PGPORT`, `PGUSER`,
+`PGPASSWORD`) que l'on recombine par service a l'etape suivante pour cibler la bonne base.
 
 ### 1.3 Deployer les 5 services
 
@@ -45,17 +53,27 @@ Pour **chacun** des dossiers `services/users-service`, `services/destinations-se
 2. Dans **Settings** du nouveau service : **Root Directory** = `services/<nom-du-service>`
    (Railway detecte automatiquement le `Dockerfile` present dans ce dossier).
 3. Dans **Variables**, ajouter les variables d'environnement necessaires (voir tableau
-   ci-dessous). Pour relier un service a une base de donnees Railway, utiliser la reference
-   `${{postgres-users.DATABASE_URL}}` (Railway propose l'auto-completion).
+   ci-dessous). Comme il n'y a plus qu'**une seule instance PostgreSQL** (`postgres`) partagee
+   entre 3 services, construire `DATABASE_URL` manuellement pour cibler la bonne base :
+   ```
+   # users-service :
+   DATABASE_URL = ${{postgres.DATABASE_URL}}
+
+   # destinations-service :
+   DATABASE_URL = postgresql://${{postgres.PGUSER}}:${{postgres.PGPASSWORD}}@${{postgres.PGHOST}}:${{postgres.PGPORT}}/globetrotter_destinations
+
+   # itineraries-service :
+   DATABASE_URL = postgresql://${{postgres.PGUSER}}:${{postgres.PGPASSWORD}}@${{postgres.PGHOST}}:${{postgres.PGPORT}}/globetrotter_itineraries
+   ```
 4. **Deploy**. Une fois deploye, Railway fournit une URL publique dans **Settings > Networking
    > Generate Domain** (a activer pour `api-gateway` au minimum ; pour les autres services,
    une URL interne suffit si vous utilisez le reseau prive Railway - voir note plus bas).
 
 | Service | Root Directory | Variables cles |
 |---|---|---|
-| users-service | `services/users-service` | `DATABASE_URL` (postgres-users), `JWT_SECRET`, `PORT=4001` |
-| destinations-service | `services/destinations-service` | `DATABASE_URL` (postgres-destinations), `REDIS_URL`, `PORT=4002` |
-| itineraries-service | `services/itineraries-service` | `DATABASE_URL` (postgres-itineraries), `JWT_SECRET` (**identique** a users-service), `DESTINATIONS_SERVICE_URL`, `RABBITMQ_URL`, `PORT=4003` |
+| users-service | `services/users-service` | `DATABASE_URL` (postgres, db par defaut), `JWT_SECRET`, `PORT=4001` |
+| destinations-service | `services/destinations-service` | `DATABASE_URL` (postgres, db `globetrotter_destinations`), `REDIS_URL`, `PORT=4002` |
+| itineraries-service | `services/itineraries-service` | `DATABASE_URL` (postgres, db `globetrotter_itineraries`), `JWT_SECRET` (**identique** a users-service), `DESTINATIONS_SERVICE_URL`, `RABBITMQ_URL`, `PORT=4003` |
 | recommendations-service | `services/recommendations-service` | `USERS_SERVICE_URL`, `DESTINATIONS_SERVICE_URL`, `ITINERARIES_SERVICE_URL`, `REDIS_URL`, `RABBITMQ_URL`, `PORT=4004` |
 | api-gateway | `services/api-gateway` | `USERS_SERVICE_URL`, `DESTINATIONS_SERVICE_URL`, `ITINERARIES_SERVICE_URL`, `RECOMMENDATIONS_SERVICE_URL`, `PORT=3000` |
 
